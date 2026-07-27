@@ -59,4 +59,4 @@ function loginHandler (username, password, clbk) {
     clbk(null, "Username or password is incorrect");
   }
 }
-loginHandler("admn", "1234", login);
+loginHandler("admin", "1234", login);
