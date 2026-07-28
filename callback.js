@@ -31,12 +31,14 @@ function finish() {
   console.log("All Tasks Completed");
 }
 
-register(() => {
-  login(() => {
-    getData(() => {
-      displayData(finish);
-    });
-  });
+register().then(() => {
+  return login();
+}).then(() => {
+  return getData();
+}).then(() => {
+  return displayData();
+}).then(() => {
+    finish();
 });
 
 console.log("Start of the program");
