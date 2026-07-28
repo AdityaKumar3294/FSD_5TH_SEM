@@ -1,34 +1,42 @@
-function register() {
+function register(cb) {
   setTimeout(() => {
     console.log("Register Here");
+    cb();
   }, 1000);
 }
-function login() {
+
+function login(cb) {
   setTimeout(() => {
     console.log("Login Here");
+    cb();
   }, 2000);
 }
-function getData() {
+
+function getData(cb) {
   setTimeout(() => {
     console.log("Fetch Data From DB");
+    cb();
   }, 3000);
 }
-function displayData() {
+
+function displayData(cb) {
   setTimeout(() => {
     console.log("Display Data");
+    cb();
   }, 1000);
 }
-// const start = Date.now();
-// while (Date.now() - start < delay) {
-//   console.log("Waiting for " + delay + " ms");
-// }
 
+// Callback function
+function finish() {
+  console.log("All Tasks Completed");
+}
 
 register(() => {
   login(() => {
     getData(() => {
-      displayData();
-    })
-  })
+      displayData(finish);
+    });
+  });
 });
-console.log("End of the program");
+
+console.log("Start of the program");
