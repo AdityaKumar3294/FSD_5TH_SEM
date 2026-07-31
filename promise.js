@@ -2,7 +2,7 @@ function register() {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       console.log("Register Here");
-      resolve();
+        reject("Failed to Register");
     }, 1000);
   });
 }
