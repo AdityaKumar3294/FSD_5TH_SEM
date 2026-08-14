@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Fetch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Cart Summary Header */
+        .cart-status {
+            text-align: right;
+            width: 80%;
+            margin: 10px auto;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 3px solid rgb(31, 193, 19);
+            margin: auto;
+            width: 80%;
+        }
+
+        th, td {
+            border: 2px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        thead {
+            background-color: #f2f2f2;
+        }
+
+        img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        /* Action Buttons */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-cart {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .btn-order {
+            background-color: #2e7d32;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>LIST OF PRODUCTS</h1>
+
+    <!-- Cart items display -->
+    <div class="cart-status">
+        🛒 Cart Items: <span id="cart-count">0</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>SR.NO</th>
+                <th>Title</th>
+                <th>IMAGE</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Add To Cart</th>
+                <th>Place Order</th>
+            </tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+
+    <script>
+        const url = "https://dummyjson.com/products?limit=10&skip=2";
+        const currencyUrl = "https://api.frankfurter.dev/v2/rate/USD/INR";
+
+        // Global cart array to track items
+        let cart = [];
+        let productsList = [];
+
+        async function loadProduct() {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                productsList = data.products;
+
+                // Fetch exchange rate with a fallback if API fails
+                let rate = 83.5; 
+                try {
+                    const currencyRes = await fetch(currencyUrl);
+                    const currencyData = await currencyRes.json();
+                    if (currencyData && currencyData.rate) {
+                        rate = currencyData.rate;
+                    }
+                } catch (e) {
+                    console.warn("Currency API unavailable, using fallback rate:", rate);
+                }
+
+                let rows = "";
+                productsList.forEach((product, index) => {
+                    const inrPrice = (product.price * rate).toFixed(2);
+
+                    rows += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${product.title}</strong></td>
+                        <td>
+                            <img src="${product.images[0]}" alt="${product.title}">
+                        </td>
+                        <td>${product.description}</td>
+                        <td>${product.category}</td>
+                        <td>₹ ${inrPrice}</td>
+                        <td>★ ${product.rating}</td>
+                        <td>
+                            <button class="btn btn-cart" onclick="addToCart(${product.id}, '${escapeQuotes(product.title)}', ${inrPrice})">
+                                Add To Cart
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-order" onclick="placeOrder('${escapeQuotes(product.title)}', ${inrPrice})">
+                                Place Order
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+
+                document.getElementById("data").innerHTML = rows;
+
+            } catch (error) {
+                console.error("Failed to load products:", error);
+            }
+        }
+
+        // Helper to prevent syntax errors from titles containing quotes
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'");
+        }
+
+        // Add to Cart handler
+        function addToCart(id, title, price) {
+            cart.push({ id, title, price });
+            document.getElementById("cart-count").innerText = cart.length;
+            alert(`"${title}" has been added to your cart!`);
+        }
+
+        // Place direct Order handler
+        function placeOrder(title, price) {
+            const confirmed = confirm(`Do you want to confirm your order for "${title}" for ₹${price}?`);
+            if (confirmed) {
+                alert(`🎉 Order placed successfully for "${title}"!`);
+            }
+        }
+
+        loadProduct();
+    </script>
+</body>
+</html>
