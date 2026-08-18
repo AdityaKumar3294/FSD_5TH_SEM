@@ -16,9 +16,12 @@
 
         /* Cart Summary Header */
         .cart-status {
-            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
             width: 80%;
-            margin: 10px auto;
+            margin: 15px auto;
             font-weight: bold;
             font-size: 1.1rem;
         }
@@ -48,7 +51,7 @@
 
         /* Action Buttons */
         .btn {
-            padding: 8px 12px;
+            padding: 8px 14px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -68,6 +71,7 @@
         .btn-order {
             background-color: #2e7d32;
             color: white;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -75,9 +79,10 @@
 
     <h1>LIST OF PRODUCTS</h1>
 
-    <!-- Cart items display -->
+    <!-- Global Cart Summary & Checkout -->
     <div class="cart-status">
-        🛒 Cart Items: <span id="cart-count">0</span>
+        <span>🛒 Cart Items: <span id="cart-count">0</span></span>
+        <button class="btn btn-order" onclick="placeCartOrder()">Place Order</button>
     </div>
 
     <table>
@@ -90,8 +95,7 @@
                 <th>Category</th>
                 <th>Price</th>
                 <th>Rating</th>
-                <th>Add To Cart</th>
-                <th>Place Order</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="data"></tbody>
@@ -101,7 +105,6 @@
         const url = "https://dummyjson.com/products?limit=10&skip=2";
         const currencyUrl = "https://api.frankfurter.dev/v2/rate/USD/INR";
 
-        // Global cart array to track items
         let cart = [];
         let productsList = [];
 
@@ -143,11 +146,6 @@
                                 Add To Cart
                             </button>
                         </td>
-                        <td>
-                            <button class="btn btn-order" onclick="placeOrder('${escapeQuotes(product.title)}', ${inrPrice})">
-                                Place Order
-                            </button>
-                        </td>
                     </tr>`;
                 });
 
@@ -165,16 +163,25 @@
 
         // Add to Cart handler
         function addToCart(id, title, price) {
-            cart.push({ id, title, price });
+            cart.push({ id, title, price: Number(price) });
             document.getElementById("cart-count").innerText = cart.length;
             alert(`"${title}" has been added to your cart!`);
         }
 
-        // Place direct Order handler
-        function placeOrder(title, price) {
-            const confirmed = confirm(`Do you want to confirm your order for "${title}" for ₹${price}?`);
+        // Single Place Order handler for all cart items
+        function placeCartOrder() {
+            if (cart.length === 0) {
+                alert("Your cart is empty! Add some products before placing an order.");
+                return;
+            }
+
+            const totalAmount = cart.reduce((sum, item) => sum + item.price, 0).toFixed(2);
+            const confirmed = confirm(`You have ${cart.length} item(s) in your cart.\nTotal Amount: ₹${totalAmount}\n\nDo you want to confirm your order?`);
+            
             if (confirmed) {
-                alert(`🎉 Order placed successfully for "${title}"!`);
+                alert(`🎉 Order placed successfully for ${cart.length} item(s) worth ₹${totalAmount}!`);
+                cart = []; // Reset cart
+                document.getElementById("cart-count").innerText = "0";
             }
         }
 
