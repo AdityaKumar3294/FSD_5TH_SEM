@@ -12,6 +12,14 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.products {
+  display: grid;
+  grid-template-columns: repeat(2, 250px);
+  justify-content: center;
+  gap: 30px;
+  padding: 40px;
+}
+
 .item:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 24px rgba(30, 41, 59, 0.18);
